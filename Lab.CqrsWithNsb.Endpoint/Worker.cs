@@ -36,11 +36,14 @@ namespace Lab.CqrsWithNsb.Endpoint
 
         private static async Task SimpleTransfer(IMessageSession endpoint)
         {
+            var samId = Guid.NewGuid();
+            var bobId = Guid.NewGuid();
+
             var accountOfBob = Guid.NewGuid();
             var accountOfSam = Guid.NewGuid();
 
-            await endpoint.Send(new Open(accountOfBob, 1000000.0M));
-            await endpoint.Send(new Open(accountOfSam, 1000000.0M));
+            await endpoint.Send(new Open(accountOfBob, samId, 1000000.0M));
+            await endpoint.Send(new Open(accountOfSam, bobId, 1000000.0M));
 
             await Task.Delay(1000);
 
@@ -61,8 +64,9 @@ namespace Lab.CqrsWithNsb.Endpoint
 
         private static async Task TheFundraiser(IMessageSession endpoint)
         {
+            var teslaId = Guid.NewGuid();
             var accountOfTesla = Guid.NewGuid();
-            await endpoint.Send(new Open(accountOfTesla, 0.0M));
+            await endpoint.Send(new Open(accountOfTesla, teslaId, 0.0M));
 
             await Task.Delay(1000);
 
@@ -88,11 +92,13 @@ namespace Lab.CqrsWithNsb.Endpoint
         {
             var transactionCount = 10;
 
+            var samId = Guid.NewGuid();
+            var bobId = Guid.NewGuid();
             var accountOfBob = Guid.NewGuid();
             var accountOfSam = Guid.NewGuid();
 
-            await endpoint.Send(new Open(accountOfBob, 1000000.0M));
-            await endpoint.Send(new Open(accountOfSam, 1000000.0M));
+            await endpoint.Send(new Open(accountOfBob, bobId, 1000000.0M));
+            await endpoint.Send(new Open(accountOfSam, samId, 1000000.0M));
 
             Console.WriteLine("Open accounts");
             Console.ReadLine();

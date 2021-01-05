@@ -34,15 +34,10 @@ namespace Lab.CqrsWithNsb.Endpoint
 
                     var routing = transport.Routing();
                     routing.RouteToEndpoint(typeof(QueryBalanceRequest).Assembly, "Lab.CqrsWithNsb.Endpoint");
-                    // routing.RouteToEndpoint(typeof(TransactionStarted), "Lab.CqrsWithNsb.Endpoint");
-                    // routing.RouteToEndpoint(typeof(TransactionSuccessful), "Lab.CqrsWithNsb.Endpoint");
-                    // routing.RouteToEndpoint(typeof(Event), "Lab.CqrsWithNsb.Endpoint");
 
                     var presistence = endpointConfiguration.UsePersistence<SqlPersistence>();
                     presistence.ConnectionBuilder(() => new SqlConnection("Server=(local);Database=LabCqrsNsb;Trusted_Connection=true"));
                     presistence.SqlDialect<SqlDialect.MsSqlServer>();
-                    
-                    //var sagaPersistence = presistence.SagaSettings();
                     
 
                     var conventions = endpointConfiguration.Conventions();

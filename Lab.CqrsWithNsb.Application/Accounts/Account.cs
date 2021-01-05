@@ -43,9 +43,14 @@ namespace Lab.CqrsWithNsb.Application.Accounts
 
         public async Task Handle(Withdraw message, IMessageHandlerContext context)
         {
+            if (Data.Balance < message.Amount)
+            {
+                await Causes(new InsufficientBalance(message.TransactionId, message.AccountId, message.Amount, Data.Balance), context);
+                return;
+            }
+
             await Causes(new AmountWithdrawn(message.TransactionId, message.AccountId, message.Amount), context);
         }
-
         
         private async Task Causes(object e, IMessageHandlerContext context)
         {
@@ -63,7 +68,14 @@ namespace Lab.CqrsWithNsb.Application.Accounts
 
         public void Apply(dynamic e)
         {
-            ((dynamic)this).Apply(e);
+            try
+            {
+                ((dynamic)this).Apply(e);
+            }
+            catch 
+            {
+               
+            }
         }
 
         public void Apply(AccountOpened e)
@@ -81,6 +93,9 @@ namespace Lab.CqrsWithNsb.Application.Accounts
         {
             Balance -= e.Amount;
         }
+
+        
     }
 
+   
 }

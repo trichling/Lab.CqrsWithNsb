@@ -1,0 +1,66 @@
+using System;
+using System.Threading.Tasks;
+using Lab.CqrsWithNsb.Application.Accounts.Messages;
+using Lab.CqrsWithNsb.Application.Accounts.Messages.Commands;
+using Lab.CqrsWithNsb.Application.Accounts.Messages.Events;
+using NServiceBus;
+
+namespace Lab.CqrsWithNsb.Application.Accounts
+{
+public class Account : Saga<AccountData>,
+    IAmStartedByMessages<Open>,
+    IHandleMessages<Deposit>,
+    IHandleMessages<Withdraw>,
+{
+    public Account()
+    {
+    }
+
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AccountData> mapper)
+    {
+        mapper.ConfigureMapping<Open>(m => m.AccountId).ToSaga(s => s.AccountId);
+        mapper.ConfigureMapping<Deposit>(m => m.AccountId).ToSaga(s => s.AccountId);
+        mapper.ConfigureMapping<Withdraw>(m => m.AccountId).ToSaga(s => s.AccountId);
+    }
+
+    public async Task Handle(Open message, IMessageHandlerContext context)
+    {
+        Data.AccountId = e.AccountId;
+        Data.Balance = e.InitialBalance;
+
+        await Causes(new AccountOpened(message.AccountId, message.InitialBalance), context);
+    }
+
+    public async Task Handle(Deposit message, IMessageHandlerContext context)
+    {
+        Data.Balance += e.Amount;
+
+        await Causes(new AmountDeposited(message.TransactionId, message.AccountId, message.Amount), context);
+    }
+
+    public async Task Handle(Withdraw message, IMessageHandlerContext context)
+    {
+i       f (Data.Balance < message.Amount)
+        {
+            await Causes(new InsufficientBalance(message.TransactionId, message.AccountId, message.Amount, Data.Balance), context);
+            return;
+        }
+
+        Data.Balance -= e.Amount;
+
+        await Causes(new AmountWithdrawn(message.TransactionId, message.AccountId, message.Amount), context);
+    }
+    
+    private async Task Causes(object e, IMessageHandlerContext context)
+    {
+        await context.Publish(e);
+    }
+}
+
+public class AccountData : ContainSagaData
+{
+    public Guid AccountId { get; set; }
+
+    public decimal Balance { get; set; }
+}
+}
